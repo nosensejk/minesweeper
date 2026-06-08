@@ -219,12 +219,6 @@ body {
     padding: 16px;
   }
 
-  .cell {
-    width: 32px;
-    height: 32px;
-
-    font-size: 16px;
-  }
 
   .counter {
     min-width: 70px;
@@ -239,7 +233,7 @@ body {
     font-size: 24px;
   }
 }
-.difficulty {
+.difficulty-select {
   width: 100%;
 
   padding: 14px 16px;
@@ -271,10 +265,28 @@ body {
     linear-gradient(45deg, transparent 50%, white 50%), linear-gradient(135deg, white 50%, transparent 50%);
 
   background-position:
-    calc(100% - 20px) calc(50% - 3px),
-    calc(100% - 14px) calc(50% - 3px);
+    calc(100% - 20px) calc(50%),
+    calc(100% - 14px) calc(50%);
 
   background-size: 6px 6px;
 
   background-repeat: no-repeat;
+}
+
+.difficulty-select:hover {
+  background-color: rgba(30, 41, 59, 0.9);
+
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.difficulty-select:focus {
+  border-color: #3b82f6;
+
+  box-shadow:
+    0 0 5px 3px rgba(59, 130, 246, 0.25);
+}
+
+.difficulty-select option {
+  background: #0f172a;
+  color: white;
 }

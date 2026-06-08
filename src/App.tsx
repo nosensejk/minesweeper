@@ -88,7 +88,7 @@ function App() {
       <h2 className="status">{gameOver ? "💥 Game Over" : hasWon ? "🎉 You Won!" : "Playing"}</h2>
       <select
         value={difficulty}
-        className="difficulty"
+        className="difficulty-select"
         onChange={(e) => {
           const value = e.target.value as Difficulty;
           setDifficulty(value);
