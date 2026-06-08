@@ -5,11 +5,17 @@ import { revealCell } from "./game/revealCell";
 import { revealAllMines } from "./game/revealAllMines";
 import { toggleFlag } from "./game/toggleFlag";
 import { checkWin } from "./game/checkWin";
+import { type Difficulty, DIFFICULTIES } from "./game/difficulties";
 
 function App() {
-  const [board, setBoard] = useState(() => createBoard(9, 9, 10));
   const [gameOver, setGameOver] = useState(false);
   const [hasWon, setHasWon] = useState(false);
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+
+  const settings = DIFFICULTIES[difficulty];
+  const [board, setBoard] = useState(() =>
+    createBoard(settings.rows, settings.cols, settings.mines),
+  );
 
   function handleCellClick(row: number, col: number) {
     if (gameOver || hasWon) return;
@@ -51,21 +57,52 @@ function App() {
     setBoard(newBoard);
   }
 
-  function resetGame() {
-    setBoard(createBoard(9, 9, 10));
+  function resetGame(newDifficulty = difficulty) {
+    const config = DIFFICULTIES[newDifficulty];
+    setBoard(createBoard(config.rows, config.cols, config.mines));
 
     setGameOver(false);
     setHasWon(false);
   }
 
+  const flagsPlaced = board.flat().filter((cell) => cell.isFlagged).length;
+  const minesLeft = settings.mines - flagsPlaced;
+
+  const face = gameOver
+  ? "😵"
+  : hasWon
+  ? "😎"
+  : "🙂";
+
   return (
     <div className="app">
-      <h1>Сапёр</h1>
-      <button onClick={resetGame}>New Game</button>
-      <h2>
-        {gameOver ? "💥 Game Over" : hasWon ? "🎉 You Won!" : "Playing"}
-      </h2>
-      <div className="board">
+      <div className="game-panel">
+        <div className="counter">🚩 {minesLeft}</div>
+
+        <button className="reset-button" onClick={() => resetGame()}>
+          {face}
+        </button>
+
+        <div className="counter">⏱ 0</div>
+      </div>
+      <h2 className="status">{gameOver ? "💥 Game Over" : hasWon ? "🎉 You Won!" : "Playing"}</h2>
+      <select
+        value={difficulty}
+        className="difficulty"
+        onChange={(e) => {
+          const value = e.target.value as Difficulty;
+          setDifficulty(value);
+          resetGame(value);
+        }}
+      >
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <div
+        className="board"
+        style={{ gridTemplateColumns: `repeat(${settings.cols}, 40px)` }}
+      >
         {board.map((row) =>
           row.map((cell) => (
             <Cell

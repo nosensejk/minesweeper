@@ -6,6 +6,17 @@ type CellProps = {
   onRightClick: () => void;
 };
 
+const numberColors = {
+  1: "#0000ff",
+  2: "#008000",
+  3: "#ff0000",
+  4: "#000080",
+  5: "#800000",
+  6: "#008080",
+  7: "#000000",
+  8: "#808080",
+};
+
 function Cell({ cell, onClick, onRightClick }: CellProps) {
   let content = "";
 
@@ -25,6 +36,12 @@ function Cell({ cell, onClick, onRightClick }: CellProps) {
       onContextMenu={(e) => {
         e.preventDefault();
         onRightClick();
+      }}
+      style={{
+        color:
+          cell.isRevealed && cell.adjacentMines > 0
+            ? numberColors[cell.adjacentMines as keyof typeof numberColors]
+            : undefined,
       }}
     >
       {content}
