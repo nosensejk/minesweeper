@@ -1,4 +1,5 @@
 import { type CellData } from "../game/types";
+import { Flag, Bomb } from "lucide-react";
 
 type CellProps = {
   cell: CellData;
@@ -6,29 +7,31 @@ type CellProps = {
   onRightClick: () => void;
 };
 
+// Цвета цифр для темных тем
 const numberColors = {
-  1: "#0000ff",
-  2: "#008000",
-  3: "#ff0000",
-  4: "#000080",
-  5: "#800000",
-  6: "#008080",
-  7: "#000000",
-  8: "#808080",
+  1: "#38bdf8", // Голубой
+  2: "#4ade80", // Зеленый
+  3: "#f87171", // Красный
+  4: "#c084fc", // Фиолетовый
+  5: "#fb923c", // Оранжевый
+  6: "#2dd4bf",
+  7: "#e2e8f0",
+  8: "#94a3b8",
 };
 
 function Cell({ cell, onClick, onRightClick }: CellProps) {
-  let content = "";
+  let content: React.ReactNode = "";
 
   if (cell.isFlagged) {
-    content = "🚩";
+    content = <Flag size={18} fill="currentColor" className="text-red-500" />;
   } else if (cell.isRevealed) {
     if (cell.isMine) {
-      content = "💣";
+      content = <Bomb size={20} fill="currentColor" />;
     } else if (cell.adjacentMines > 0) {
       content = String(cell.adjacentMines);
     }
   }
+
   return (
     <button
       className={cell.isRevealed ? "cell revealed" : "cell"}

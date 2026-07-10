@@ -1,23 +1,61 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-:root {
-  --bg: #0f172a;
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&family=MS+Sans+Serif&display=swap");
 
-  --panel: rgba(30, 41, 59, 0.8);
+/* --- ТЕМЫ ОФОРМЛЕНИЯ --- */
 
+/* 1. Glass Theme (По умолчанию) */
+[data-theme="glass"] {
+  --bg-gradient: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81);
+  --font-main: "Inter", sans-serif;
+  --panel: rgba(30, 41, 59, 0.75);
+  --counter-bg: #111827;
+  --counter-text: #f8fafc;
+  --reset-bg: #2563eb;
+  --reset-hover: #3b82f6;
+  --board-bg: rgba(15, 23, 42, 0.7);
   --cell: #1e293b;
   --cell-hover: #334155;
-
   --revealed: #0f172a;
-
   --border: #475569;
-
-  --success: #22c55e;
-  --danger: #ef4444;
-
   --text: #f8fafc;
 }
 
+/* 2. Cyberpunk Theme */
+[data-theme="cyberpunk"] {
+  --bg-gradient: linear-gradient(135deg, #05050a, #1a0826);
+  --font-main: "Share Tech Mono", monospace;
+  --panel: rgba(20, 10, 35, 0.85);
+  --counter-bg: #000000;
+  --counter-text: #00ffcc;
+  --reset-bg: #ff0055;
+  --reset-hover: #ff3377;
+  --board-bg: rgba(10, 5, 20, 0.9);
+  --cell: #2a1b40;
+  --cell-hover: #3d2b5c;
+  --revealed: #120a1c;
+  --border: #ff0055;
+  --text: #00ffcc;
+}
+
+/* 3. Retro Theme (Классический Сапёр) */
+[data-theme="retro"] {
+  --bg-gradient: solid #008080; /* Тот самый зеленый фон */
+  --font-main: "Arial", sans-serif;
+  --panel: #bdbdbd;
+  --counter-bg: #000000;
+  --counter-text: #ff0000; /* Красные LED цифры */
+  --reset-bg: #bdbdbd;
+  --reset-hover: #ced4da;
+  --board-bg: #bdbdbd;
+  --cell: #bdbdbd;
+  --cell-hover: #bdbdbd;
+  --revealed: #7b7b7b;
+  --border: #808080;
+  --text: #000000;
+}
+
+/* --- СБРОС И ОБЩИЕ СТИЛИ --- */
 * {
   margin: 0;
   padding: 0;
@@ -25,22 +63,134 @@
 }
 
 body {
-  background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81);
-
+  background: var(--bg-gradient);
+  background-color: #008080; /* Для ретро режима */
   min-height: 100vh;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  font-family: Inter, Arial, sans-serif;
+  font-family: var(--font-main);
+  transition: background 0.3s ease;
 }
 
-#root {
-  width: 100%;
+/* Изменения в классах для поддержки переменных */
+.app {
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--panel);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+/* Ретро-бордюры (эффект объема) */
+[data-theme="retro"] .app {
+  border-radius: 0;
+  border: 3px solid;
+  border-color: #fff #555 #555 #fff;
+  box-shadow: none;
+}
+
+[data-theme="retro"] .cell {
+  border-radius: 0;
+  border: 2px solid;
+  border-color: #fff #555 #555 #fff;
+}
+
+[data-theme="retro"] .cell.revealed {
+  border: 1px solid #808080;
+}
+
+.counter {
+  min-width: 90px;
+  text-align: center;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--counter-bg);
+  color: var(--counter-text);
+  font-weight: 700;
+  font-size: 20px;
+  font-family: var(--font-main);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="retro"] .counter {
+  font-family: "Share Tech Mono", monospace; /* Имитация LED экрана */
+  border-radius: 0;
+  border: 2px solid;
+  border-color: #555 #fff #fff #555;
+}
+
+.reset-button {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 18px;
+  font-size: 28px;
+  cursor: pointer;
+  background: var(--reset-bg);
   display: flex;
+  align-items: center;
   justify-content: center;
+  transition:
+    transform 0.2s,
+    background 0.2s;
 }
+
+.reset-button:hover {
+  background: var(--reset-hover);
+}
+
+[data-theme="retro"] .reset-button {
+  border-radius: 0;
+  border: 2px solid;
+  border-color: #fff #555 #555 #fff;
+}
+
+.board {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--board-bg);
+}
+
+[data-theme="retro"] .board {
+  border-radius: 0;
+  border: 3px solid;
+  border-color: #555 #fff #fff #555;
+  gap: 0; /* В ретро клетки вплотную */
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: var(--cell);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.15s,
+    background 0.15s;
+}
+
+.cell:hover {
+  background: var(--cell-hover);
+}
+
+.cell.revealed {
+  background: var(--revealed);
+  border: 1px solid var(--border);
+}
+
+/* Оставляем твои старые стили для селектов и медиа-запросов без изменений... */
 
 .app {
   padding: 24px;
@@ -219,7 +369,6 @@ body {
     padding: 16px;
   }
 
-
   .counter {
     min-width: 70px;
 
@@ -282,8 +431,7 @@ body {
 .difficulty-select:focus {
   border-color: #3b82f6;
 
-  box-shadow:
-    0 0 5px 3px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 5px 3px rgba(59, 130, 246, 0.25);
 }
 
 .difficulty-select option {

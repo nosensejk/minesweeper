@@ -1,5 +1,5 @@
 import Cell from "./components/Cell";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createBoard } from "./game/createBoard";
 import { revealCell } from "./game/revealCell";
 import { revealAllMines } from "./game/revealAllMines";
@@ -7,23 +7,29 @@ import { toggleFlag } from "./game/toggleFlag";
 import { checkWin } from "./game/checkWin";
 import { type Difficulty, DIFFICULTIES } from "./game/difficulties";
 
+type Theme = "glass" | "cyberpunk" | "retro";
+
 function App() {
   const [gameOver, setGameOver] = useState(false);
   const [hasWon, setHasWon] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+  const [theme, setTheme] = useState<Theme>("glass");
 
   const settings = DIFFICULTIES[difficulty];
   const [board, setBoard] = useState(() =>
     createBoard(settings.rows, settings.cols, settings.mines),
   );
 
+  // Синхронизируем тему с тегом body, чтобы менялся бэкграунд страницы
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+  }, [theme]);
+
   function handleCellClick(row: number, col: number) {
     if (gameOver || hasWon) return;
 
     const newBoard = board.map((currentRow) =>
-      currentRow.map((cell) => ({
-        ...cell,
-      })),
+      currentRow.map((cell) => ({ ...cell })),
     );
 
     const clickedCell = newBoard[row][col];
@@ -31,7 +37,6 @@ function App() {
 
     if (clickedCell.isMine) {
       revealAllMines(newBoard);
-
       setBoard(newBoard);
       setGameOver(true);
       return;
@@ -48,9 +53,7 @@ function App() {
     if (gameOver || hasWon) return;
 
     const newBoard = board.map((currentRow) =>
-      currentRow.map((cell) => ({
-        ...cell,
-      })),
+      currentRow.map((cell) => ({ ...cell })),
     );
 
     toggleFlag(newBoard, row, col);
@@ -60,7 +63,6 @@ function App() {
   function resetGame(newDifficulty = difficulty) {
     const config = DIFFICULTIES[newDifficulty];
     setBoard(createBoard(config.rows, config.cols, config.mines));
-
     setGameOver(false);
     setHasWon(false);
   }
@@ -68,14 +70,11 @@ function App() {
   const flagsPlaced = board.flat().filter((cell) => cell.isFlagged).length;
   const minesLeft = settings.mines - flagsPlaced;
 
-  const face = gameOver
-  ? "😵"
-  : hasWon
-  ? "😎"
-  : "🙂";
+  const face = gameOver ? "😵" : hasWon ? "😎" : "🙂";
 
   return (
-    <div className="app">
+    // Добавляем атрибут data-theme
+    <div className="app" data-theme={theme}>
       <div className="game-panel">
         <div className="counter">🚩 {minesLeft}</div>
 
@@ -85,20 +84,40 @@ function App() {
 
         <div className="counter">⏱ 0</div>
       </div>
-      <h2 className="status">{gameOver ? "💥 Game Over" : hasWon ? "🎉 You Won!" : "Playing"}</h2>
-      <select
-        value={difficulty}
-        className="difficulty-select"
-        onChange={(e) => {
-          const value = e.target.value as Difficulty;
-          setDifficulty(value);
-          resetGame(value);
-        }}
-      >
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
+
+      <h2 className="status">
+        {gameOver ? "💥 Game Over" : hasWon ? "🎉 You Won!" : "Playing"}
+      </h2>
+
+      {/* Настройки селекторов */}
+      <div style={{ display: "flex", gap: "10px" }}>
+        {/* Селектор сложности */}
+        <select
+          value={difficulty}
+          className="difficulty-select"
+          onChange={(e) => {
+            const value = e.target.value as Difficulty;
+            setDifficulty(value);
+            resetGame(value);
+          }}
+        >
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        {/* НОВЫЙ: Селектор тем оформления */}
+        <select
+          value={theme}
+          className="difficulty-select"
+          onChange={(e) => setTheme(e.target.value as Theme)}
+        >
+          <option value="glass">💎 Glass</option>
+          <option value="cyberpunk">🔮 Cyberpunk</option>
+          <option value="retro">💾 Retro 95</option>
+        </select>
+      </div>
+
       <div
         className="board"
         style={{ gridTemplateColumns: `repeat(${settings.cols}, 40px)` }}
