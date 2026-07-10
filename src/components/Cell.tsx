@@ -41,6 +41,7 @@ function Cell({ cell, onClick, onRightClick }: CellProps) {
         onRightClick();
       }}
       style={{
+        touchAction: "manipulation", // Предотвращает задержку клика и зум на смартфонах
         color:
           cell.isRevealed && cell.adjacentMines > 0
             ? numberColors[cell.adjacentMines as keyof typeof numberColors]
