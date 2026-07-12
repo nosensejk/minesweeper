@@ -132,14 +132,14 @@ function App() {
           onClick={() => setActiveTool("dig")}
         >
           <Pickaxe size={20} />
-          <span>Открыть</span>
+          <span>Open</span>
         </button>
         <button
           className={`tool-button ${activeTool === "flag" ? "active" : ""}`}
           onClick={() => setActiveTool("flag")}
         >
           <Flag size={20} />
-          <span>Флаг</span>
+          <span>Flag</span>
         </button>
       </div>
 
