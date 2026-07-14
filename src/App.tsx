@@ -6,18 +6,29 @@ import { revealAllMines } from "./game/revealAllMines";
 import { toggleFlag } from "./game/toggleFlag";
 import { checkWin } from "./game/checkWin";
 import { type Difficulty, DIFFICULTIES } from "./game/difficulties";
-// Импортируем иконки для мобильного переключателя
-import { Pickaxe, Flag } from "lucide-react";
+
+// Import NEW icons and existing ones
+import {
+  Pickaxe,
+  Flag,
+  Smile,
+  XCircle,
+  PartyPopper,
+  Timer,
+} from "lucide-react";
 
 type Theme = "glass" | "cyberpunk" | "retro";
-type GameTool = "dig" | "flag"; // Наш новый тип инструмента
+type GameTool = "dig" | "flag";
 
 function App() {
   const [gameOver, setGameOver] = useState(false);
   const [hasWon, setHasWon] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [theme, setTheme] = useState<Theme>("glass");
-  const [activeTool, setActiveTool] = useState<GameTool>("dig"); // По умолчанию копаем
+  const [activeTool, setActiveTool] = useState<GameTool>("dig");
+
+  const [time, setTime] = useState(0);
+  const [isFirstMove, setIsFirstMove] = useState(true);
 
   const settings = DIFFICULTIES[difficulty];
   const [board, setBoard] = useState(() =>
@@ -28,14 +39,34 @@ function App() {
     document.body.setAttribute("data-theme", theme);
   }, [theme]);
 
-  // Модифицируем клик: теперь он учитывает выбранный мобильный инструмент
+  useEffect(() => {
+    if (isFirstMove || gameOver || hasWon) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTime((prevTime) => {
+        if (prevTime >= 999) {
+          clearInterval(interval);
+          return 999;
+        }
+        return prevTime + 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isFirstMove, gameOver, hasWon]);
+
   function handleCellClick(row: number, col: number) {
     if (gameOver || hasWon) return;
 
-    // Если на телефоне выбран режим флага — перенаправляем на правый клик
     if (activeTool === "flag") {
       handleRightClick(row, col);
       return;
+    }
+
+    if (isFirstMove) {
+      setIsFirstMove(false);
     }
 
     const newBoard = board.map((currentRow) =>
@@ -66,7 +97,6 @@ function App() {
       currentRow.map((cell) => ({ ...cell })),
     );
 
-    // Не даем ставить флаг на уже открытую ячейку
     if (newBoard[row][col].isRevealed) return;
 
     toggleFlag(newBoard, row, col);
@@ -78,27 +108,66 @@ function App() {
     setBoard(createBoard(config.rows, config.cols, config.mines));
     setGameOver(false);
     setHasWon(false);
+
+    setTime(0);
+    setIsFirstMove(true);
   }
 
   const flagsPlaced = board.flat().filter((cell) => cell.isFlagged).length;
   const minesLeft = settings.mines - flagsPlaced;
-  const face = gameOver ? "😵" : hasWon ? "😎" : "🙂";
+
+  // 1. Calculate Face Icon component
+  let faceIcon = <Smile size={32} className="text-white" />;
+  if (gameOver) {
+    faceIcon = <XCircle size={32} className="text-white" />;
+  } else if (hasWon) {
+    faceIcon = <PartyPopper size={32} className="text-white" />;
+  }
+
+  // 2. Define Status Content component
+  let statusContent = (
+    <>
+      <span>Playing</span>
+    </>
+  );
+  if (gameOver) {
+    statusContent = (
+      <>
+        <span>Game Over</span>
+      </>
+    );
+  } else if (hasWon) {
+    statusContent = (
+      <>
+        <span>You Won!</span>
+      </>
+    );
+  }
 
   return (
     <div className="app" data-theme={theme}>
       <div className="game-panel">
-        <div className="counter">🚩 {minesLeft}</div>
+        <div className="counter">
+          {/* REPLACE Flag emoji with Icon */}
+          <Flag size={22} className="text-red-500" />
+          <span>{String(minesLeft)}</span>
+        </div>
+
+        {/* REPLACE emoji face with dynamic icon */}
         <button className="reset-button" onClick={() => resetGame()}>
-          {face}
+          {faceIcon}
         </button>
-        <div className="counter">⏱ 0</div>
+
+        <div className="counter">
+          {/* REPLACE Timer emoji with Icon */}
+          <Timer size={22} className="text-sky-400" />
+          <span>{String(time)}</span>
+        </div>
       </div>
 
-      <h2 className="status">
-        {gameOver ? "💥 Game Over" : hasWon ? "🎉 You Won!" : "Playing"}
-      </h2>
+      {/* REPLACE emoji and text with dynamic content */}
+      <h2 className="status">{statusContent}</h2>
 
-      {/* Панель выбора сложности и темы */}
       <div style={{ display: "flex", gap: "10px" }}>
         <select
           value={difficulty}
@@ -125,25 +194,23 @@ function App() {
         </select>
       </div>
 
-      {/* НОВАЯ: Мобильная панель инструментов */}
       <div className="mobile-tools">
         <button
           className={`tool-button ${activeTool === "dig" ? "active" : ""}`}
           onClick={() => setActiveTool("dig")}
         >
           <Pickaxe size={20} />
-          <span>Open</span>
+          <span>Открыть</span>
         </button>
         <button
           className={`tool-button ${activeTool === "flag" ? "active" : ""}`}
           onClick={() => setActiveTool("flag")}
         >
           <Flag size={20} />
-          <span>Flag</span>
+          <span>Флаг</span>
         </button>
       </div>
 
-      {/* Обертка для адаптивного скролла большой карты */}
       <div className="board-container">
         <div
           className="board"
